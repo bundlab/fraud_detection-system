@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Flutter / Dart
+**/frontend_flutter/.dart_tool/
+**/frontend_flutter/.flutter-plugins
+**/frontend_flutter/.flutter-plugins-dependencies
+**/frontend_flutter/.pub-cache/
+**/frontend_flutter/.pub/
+**/frontend_flutter/build/
+**/*.g.dart
+**/*.freezed.dart
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# ML / data
+**/ai_services/data/raw/
+**/ai_services/data/processed/
+**/ai_services/models/*.pkl
+**/ai_services/models/*.joblib
+**/ai_services/models/*.onnx
+**/ai_services/mlflow/
+*.h5
+*.ckpt
+
+# Docker volumes
+postgres_data/
+redis_data/
+
+# Logs
+*.log
+logs/
+
+# Coverage
+htmlcov/
+.coverage
+coverage/
