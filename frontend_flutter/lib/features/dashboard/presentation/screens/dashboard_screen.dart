@@ -19,73 +19,64 @@ class DashboardScreen extends ConsumerWidget {
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {},
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
         ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
           final isWide = width >= 900;
-          final isMedium = width >= 600 && width < 900;
+          final isMedium = width >= 600;
 
-          // Cap content width on very large screens
-          final contentWidth = width > 1200 ? 1200.0 : width;
-          final horizontalPadding = width > 1200 ? (width - 1200) / 2 : 16.0;
+          // Cap content and center on large screens
+          final maxContent = 1100.0;
+          final hPad = width > maxContent ? (width - maxContent) / 2 : 16.0;
 
           return RefreshIndicator(
             onRefresh: () async {
               await Future.delayed(const Duration(seconds: 1));
             },
             child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                horizontalPadding,
-                16,
-                horizontalPadding,
-                24,
-              ),
+              padding: EdgeInsets.fromLTRB(hPad, 12, hPad, 24),
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: contentWidth),
+                constraints: BoxConstraints(maxWidth: maxContent),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Header
                     Text(
                       'Overview',
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       'Real-time fraud monitoring',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppColors.textSecondary,
                           ),
                     ),
+                    const SizedBox(height: 16),
+
+                    // Stats
+                    _StatsGrid(isWide: isWide, isMedium: isMedium),
                     const SizedBox(height: 20),
 
-                    // Stats grid – responsive
-                    _buildStatsGrid(isWide: isWide, isMedium: isMedium),
-                    const SizedBox(height: 24),
-
-                    // Chart + Alerts – side by side on wide screens
+                    // Chart + Alerts
                     if (isWide)
-                      Row(
+                      const Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            flex: 5,
-                            child: _buildRiskSection(context),
-                          ),
-                          const SizedBox(width: 20),
-                          Expanded(
-                            flex: 6,
-                            child: _buildAlertsSection(context),
-                          ),
+                          Expanded(flex: 5, child: _RiskBlock()),
+                          SizedBox(width: 16),
+                          Expanded(flex: 6, child: _AlertsBlock()),
                         ],
                       )
                     else ...[
-                      _buildRiskSection(context),
-                      const SizedBox(height: 24),
-                      _buildAlertsSection(context),
+                      const _RiskBlock(),
+                      const SizedBox(height: 20),
+                      const _AlertsBlock(),
                     ],
                   ],
                 ),
@@ -96,10 +87,18 @@ class DashboardScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _buildStatsGrid({required bool isWide, required bool isMedium}) {
-    final cards = [
-      const StatCard(
+class _StatsGrid extends StatelessWidget {
+  final bool isWide;
+  final bool isMedium;
+
+  const _StatsGrid({required this.isWide, required this.isMedium});
+
+  @override
+  Widget build(BuildContext context) {
+    final cards = const [
+      StatCard(
         title: "Today's Txns",
         value: '1,248',
         icon: Icons.receipt_long,
@@ -107,7 +106,7 @@ class DashboardScreen extends ConsumerWidget {
         trend: '+8%',
         trendUp: true,
       ),
-      const StatCard(
+      StatCard(
         title: 'Flagged',
         value: '37',
         icon: Icons.flag,
@@ -115,7 +114,7 @@ class DashboardScreen extends ConsumerWidget {
         trend: '+3',
         trendUp: false,
       ),
-      const StatCard(
+      StatCard(
         title: 'Open Alerts',
         value: '12',
         icon: Icons.warning_amber,
@@ -123,7 +122,7 @@ class DashboardScreen extends ConsumerWidget {
         trend: '-2',
         trendUp: true,
       ),
-      const StatCard(
+      StatCard(
         title: 'Avg Risk',
         value: '0.18',
         icon: Icons.speed,
@@ -133,35 +132,47 @@ class DashboardScreen extends ConsumerWidget {
       ),
     ];
 
-    // Wide: 4 columns | Medium: 2 columns | Narrow: 2 columns stacked
     final crossAxisCount = isWide ? 4 : 2;
+    final aspect = isWide ? 2.8 : (isMedium ? 2.5 : 2.3);
 
     return GridView.count(
       crossAxisCount: crossAxisCount,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: isWide ? 2.6 : (isMedium ? 2.4 : 2.2),
+      mainAxisSpacing: 10,
+      crossAxisSpacing: 10,
+      childAspectRatio: aspect,
       children: cards,
     );
   }
+}
 
-  Widget _buildRiskSection(BuildContext context) {
+class _RiskBlock extends StatelessWidget {
+  const _RiskBlock();
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Risk Distribution',
-          style: Theme.of(context).textTheme.titleLarge,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         const RiskDistributionChart(),
       ],
     );
   }
+}
 
-  Widget _buildAlertsSection(BuildContext context) {
+class _AlertsBlock extends StatelessWidget {
+  const _AlertsBlock();
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -170,10 +181,15 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             Text(
               'Recent Alerts',
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
             TextButton(
               onPressed: () {},
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+              ),
               child: const Text('See all'),
             ),
           ],
